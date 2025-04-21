@@ -1,27 +1,31 @@
-const Message = require('../model/message')
+const Message = require('../model/messageSchema')
 
-const newMessage = async(req,res) => {
-    const { username, content } = req.body
-    if (!username || !content) {
-        return res.status(400).json({ message: 'Username and content are required.' });
+const postMessage = async(req,res) => {
+    const { username, content} = req.body
+    if(!content || !username) {
+        return res.status(400).json({ message: 'username and content are required' });
     }
     try {
-        const msg = await Message.create({ username, content})
-        res.status(201).json(msg)
+        const newMessage = new Message({username , content})
+        await newMessage.save()
+        res.status(201).json(newMessage)
+        console.log("Message saved")
     } catch(err) {
-        console.log("Failed to create msg : ",err)
-        res.status(500).json(err)
+        console.log("Error saving message : " ,err)
+        res.status(500).json({ error: 'Internal server error' })
     }
 }
 
-const getAllMessages = async(req,res) => {
+const getMessage = async(req,res) => {
     try {
-        const messages = await Message.find({}).sort({createdAt : -1})
-        res.status(200).json(messages)
+        const messages = await Message.find({})
+        res.status(200).json(messages);
     } catch (err) {
-        console.log("Failed to fetch messages :",err)
-        res.status(500).json(err)
+        console.log("Error fetching message : " ,err)
+        res.status(500).json({ error: 'Internal server error' })
     }
 }
 
-module.exports = { newMessage, getAllMessages }
+module.exports = {
+    postMessage, getMessage
+}

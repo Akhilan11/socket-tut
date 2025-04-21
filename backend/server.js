@@ -1,39 +1,39 @@
-const express = require('express')
-const dotenv = require('dotenv')
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors')
+dotenv.config();
 
-const app = express()
+const app = express();
 
 // Middleware
 app.use(express.json())
-const cors = require('cors')
 app.use(cors({
     origin: 'http://localhost:4200', // Allow requests from Angular (frontend)
     methods: ['GET', 'POST'], // Allow specific methods
 }));
 
-// Connect MongoDB
-const connectDB = require('./config/db')
-connectDB()
+// connect mongoDB
+const connectDB = require('./config/db');
+connectDB();
 
-// Config socket
-const http = require('http')
-const server  = http.createServer(app)
-const { Server } = require('socket.io')
+// connect socket
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require('socket.io');
 const io = new Server(server, {
-    cors : {
-        origin : 'http://localhost:4200',
-        methods : ['GET', 'POST']
+    cors: {
+        origin: 'http://localhost:4200', // Angular frontend port
+        methods: ['GET', 'POST']
     }
 })
-const configSocket = require('./config/socket')
-configSocket(io)
+const connectSocket = require('./config/socket');
+connectSocket(io);
 
+// routes 
+const messageRoutes = require('./routes/messageRouter')
+app.use('/api/messages', messageRoutes)
 
-// Setting up routes
-const messageRoutes = require('./routes/messageRoutes')
-app.use('/api/message', messageRoutes)
-
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log("Server running on port :", PORT)
-})
+  console.log(`Server is running on port ${PORT}`);
+});

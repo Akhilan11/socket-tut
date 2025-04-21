@@ -1,5 +1,60 @@
 <p>chat works!</p>
 
-<ul>
-    <li *ngFor="let msg of messages">{{ msg.content }}</li>
-</ul>
+<!-- Username input shown only if username is empty -->
+<div *ngIf="!username">
+  <input
+    type="text"
+    [(ngModel)]="tempUsername"
+    name="tempUsername"
+    placeholder="Enter username"
+    required
+  />
+  <button (click)="registerUsername()">Join Chat</button>
+</div>
+
+<!-- Chat UI shown only if username is set -->
+<div *ngIf="username">
+  <h3>Welcome, {{ username }}!</h3>
+
+  <!-- Active users section -->
+  <h3>Active users</h3>
+  <ul>
+    <li *ngFor="let user of activeUsers" (click)="selectPrivateReceiver(user)">
+      {{ user }}
+    </li>
+  </ul>
+
+  <!-- Display all chat messages -->
+  <div *ngFor="let msg of messages">
+    <p><strong>{{ msg.username }}</strong>: {{ msg.content }}</p>
+  </div>
+
+  <!-- Regular message input (public chat) -->
+  <form (ngSubmit)="sendMessage()">
+    <input
+      type="text"
+      [(ngModel)]="message"
+      name="message"
+      placeholder="Enter message"
+      (input)="onTyping()"
+      required
+    />
+    <p *ngIf="typingMessage">{{ typingMessage }}</p>
+    <button type="submit">Send</button>
+  </form>
+
+  <!-- Private message section -->
+  <div *ngIf="privateMessageReceiver">
+    <h4>Private Chat with {{ privateMessageReceiver }}</h4>
+    <form (ngSubmit)="sendPrivateMessage()">
+      <input
+        type="text"
+        [(ngModel)]="message"
+        name="privateMessage"
+        placeholder="Enter private message"
+        required
+      />
+      <button type="submit">Send Private</button>
+    </form>
+  </div>
+</div>
